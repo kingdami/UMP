@@ -51,11 +51,11 @@
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           zoom: 14,
-          center: {lat: 18.0078, lng: -76.8654}  // Center the map on Kingston, Jamaica.
+          center: {lat: 18.0078, lng: -76.8654},  // Center the map on Kingston, Jamaica.
+          mapTypeId: 'terrain'
         });
 
-        poly = new google.maps.Polyline({});
-        poly.setMap(map);
+        poly = new google.maps.Polyline({map: map, path: [], strokeColor: '#11b200', strokeOpacity: 1.0, strokeWeight: 1});
         /////////////////////////////////   Button Listeners    /////////////////////////////////////////////////////
         
         $('#unnavigable').click(function(){
@@ -108,9 +108,16 @@
           console.log(c);
         }
         
-        polygon = new google.maps.Polygon({
-          paths: [outerCoords, innerCoords, innerCoords2],
-        });
+        // // get existing path
+        // var path = poly.getPath();
+        // // add new point (use the position from the click event)
+        // path.push(new google.maps.LatLng(event.latLng.lat(), event.latLng.lng()));
+        // // update the polyline with the updated path
+        // poly.setPath(path);
+        
+        // polygon = new google.maps.Polygon({
+        //   paths: [outerCoords, innerCoords, innerCoords2],
+        // });
         // polygon.setMap(map);
         
         // Add a new marker at the new plotted point on the polyline.
@@ -167,85 +174,33 @@
         
         // });
         
-        google.maps.event.addListener(polygon, 'dragend', function(){
-          // Polygon was dragged
-        });
-          
-          map.data.add({geometry: new google.maps.Data.Polygon([outerCoords,innerCoords, innerCoords2])});
-          //sends request to backend
-          $.ajax({
-              type: 'POST',
-              url: '/api/processing',
-              data: JSON.stringify ({outer: outerCoords, inner: innerCoords, inner2: innerCoords2}),
-              success: function(data) { alert('data: ' + data); },
-              contentType: "application/json",
-              dataType: 'json'
-          });
-
-           // resets polygon
-      });
-      
-     
-       
-
-
+        // google.maps.event.addListener(polygon, 'dragend', function(){
+        //   // Polygon was dragged
+        // });
+          if (innerCoords.length > 0 && innerCoords2.length > 0){
+              map.data.add({geometry: new google.maps.Data.Polygon([outerCoords,innerCoords, innerCoords2])});
+              //sends request to backend
+              $.ajax({
+                  type: 'POST',
+                  url: '/api/processing',
+                  data: JSON.stringify ({outer: outerCoords, inner: innerCoords, inner2: innerCoords2}),
+                  success: function(data) { alert('data: ' + data.data); },
+                  contentType: "application/json",
+                  dataType: 'json'
+              });
     
-    // var polygon;
-    // var map;
-    // var infoWindow;
-
-    //   // This example creates a triangular polygon with a hole in it.
-
-    //   function initMap() {
-    //     var map = new google.maps.Map(document.getElementById('map'), {
-    //       zoom: 5,
-    //       center: {lat: 24.886, lng: -70.268},
-    //     });
-
-    //     // Define the LatLng coordinates for the polygon's  outer path.
-    //     var outerCoords = [
-    //       {lat: 25.774, lng: -80.190},
-    //       {lat: 18.466, lng: -66.118},
-    //       {lat: 32.321, lng: -64.757}
-    //     ];
-
-    //     // Define the LatLng coordinates for the polygon's inner path.
-    //     // Note that the points forming the inner path are wound in the
-    //     // opposite direction to those in the outer path, to form the hole.
-    //     var innerCoords = [
-    //       {lat: 28.745, lng: -70.579},
-    //       {lat: 29.570, lng: -67.514},
-    //       {lat: 27.339, lng: -66.668}
-    //     ];
-
-    //     // Construct the polygon, including both paths.
-    //     var bermudaTriangle = new google.maps.Polygon({
-    //       paths: [outerCoords, innerCoords],
-    //       strokeColor: '#FFC107',
-    //       strokeOpacity: 0.8,
-    //       strokeWeight: 2,
-    //       fillColor: '#FFC107',
-    //       fillOpacity: 0.35
-    //     });
-    //     bermudaTriangle.setMap(map);
-        
-    //     polygon.addListener('bounds_changed', showNewRect);
-
-    //     // Define an info window on the map.
-    //     infoWindow = new google.maps.InfoWindow();
-    //   }
-      
-    //   function showNewRect(event) {
-    //     var ne = polygon.getBounds().getNorthEast();
-    //     var sw = polygon.getBounds().getSouthWest();
-
-    //     var contentString = '<b>Rectangle moved.</b><br>' +
-    //         'New north-east corner: ' + ne.lat() + ', ' + ne.lng() + '<br>' +
-    //         'New south-west corner: ' + sw.lat() + ', ' + sw.lng();
-
-    //     // Set the info window's content and position.
-    //     infoWindow.setContent(contentString);
-    //     infoWindow.setPosition(ne);
-
-    //     infoWindow.open(map);
-    //  }
+               // resets polygon
+               
+          } else if (innerCoords2.length == 0 && innerCoords.length > 0){
+            map.data.add({geometry: new google.maps.Data.Polygon([outerCoords,innerCoords])});
+              //sends request to backend
+              $.ajax({
+                  type: 'POST',
+                  url: '/api/processing',
+                  data: JSON.stringify ({outer: outerCoords, inner: innerCoords}),
+                  success: function(data) { alert('data: ' + data.data); },
+                  contentType: "application/json",
+                  dataType: 'json'
+              });
+          }
+      });
