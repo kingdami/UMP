@@ -5,10 +5,11 @@
       var infoWindow;
       var outerCoords= [];
       var innerCoords= [];
+      var innerCoords2=[];
       var markers=[];
       var path = [];
       var polygon;
-      var innerCoords2= [];
+      
       var i = 0;
       
       $(window).on('load',function(){
@@ -69,7 +70,12 @@
         });
         
         
-        
+        google.maps.Map.prototype.clearMarkers = function() {
+          for(var i=0; i < markers.length; i++){
+              markers[i].setMap(null);
+          }
+          markers = new Array();
+        };
         map.addListener('click', addLatLng);
         //poly.addListener('bounds_changed', showNewRect);
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,27 +104,19 @@
           innerCoords.push(c);
           console.log("innerCoords");
           console.log(c);
-        } else {
-          //innerCoords2.push(event.latLng);
-          
+        } else if($('#unnavigable').hasClass('active') && i==1) {
           c = {'lat': event.latLng.lat(), 'lng': event.latLng.lng()};
            
           innerCoords2.push(c);
           console.log("innerCoords2");
           console.log(c);
+        } else {
+          c = {'lat': event.latLng.lat(), 'lng': event.latLng.lng()};
+           
+          innerCoords3.push(c);
+          console.log("innerCoords3");
+          console.log(c);
         }
-        
-        // // get existing path
-        // var path = poly.getPath();
-        // // add new point (use the position from the click event)
-        // path.push(new google.maps.LatLng(event.latLng.lat(), event.latLng.lng()));
-        // // update the polyline with the updated path
-        // poly.setPath(path);
-        
-        // polygon = new google.maps.Polygon({
-        //   paths: [outerCoords, innerCoords, innerCoords2],
-        // });
-        // polygon.setMap(map);
         
         // Add a new marker at the new plotted point on the polyline.
         var marker = new google.maps.Marker({
@@ -178,6 +176,7 @@
         //   // Polygon was dragged
         // });
           if (innerCoords.length > 0 && innerCoords2.length > 0){
+            google.maps.Map.prototype.clearMarkers;
               map.data.add({geometry: new google.maps.Data.Polygon([outerCoords,innerCoords, innerCoords2])});
               //sends request to backend
               $.ajax({
@@ -192,6 +191,7 @@
                // resets polygon
                
           } else if (innerCoords2.length == 0 && innerCoords.length > 0){
+            google.maps.Map.prototype.clearMarkers;
             map.data.add({geometry: new google.maps.Data.Polygon([outerCoords,innerCoords])});
               //sends request to backend
               $.ajax({
@@ -204,3 +204,5 @@
               });
           }
       });
+      
+      

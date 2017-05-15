@@ -20,12 +20,16 @@ def home():
 
 @app.route('/api/processing',methods=['POST'])
 def coordinates():
-	outerbounds = request.json['outer']
-	innerbounds = request.json['inner']
-	print outerbounds
-	print "--"*20
-	print innerbounds
-	return "Success"
+    if request.json['outer']:
+        outerbounds = request.json['outer']
+        print outerbounds
+    if request.json['inner']:
+	    innerbounds1 = request.json['inner']
+	    print innerbounds1
+    if request.json['inner2']:
+	    innerbounds2 = request.json['inner2']
+	    print innerbounds2
+    return "Success"
 
 
 
